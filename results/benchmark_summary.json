@@ -1,87 +1,112 @@
 {
-  "system": "Movie & Concert Ticket Booking Platform",
-  "architecture": "Microservices with API Gateway (Docker Compose)",
-  "test_environment": {
-    "host_os": "Windows / Linux Container Host",
-    "runtime": "Python 3.12-slim",
-    "gateway_port": 8000,
-    "orchestrator": "Docker Compose v2"
-  },
-  "benchmarks": [
+  "project": "Movie & Concert Microservices Platform",
+  "author": "Aditya Rajashekhar Gavimath",
+  "course": "Cloud Computing Laboratory - Semester 5",
+  "evaluation_manual_reference": "Microservice_Lab_Evaluation_Manual (1).pdf (Page 3)",
+  "observation_table": [
     {
-      "workload": "100_users",
-      "description": "Baseline concurrency test",
+      "workload": "W1",
+      "concurrency": 1,
+      "response_time_ms": 14.20,
+      "throughput_rps": 70.42,
+      "failed_requests": 0,
+      "cpu_utilization_percent": 3.20,
+      "memory_utilization_mb": 44.50
+    },
+    {
+      "workload": "W2",
+      "concurrency": 2,
+      "response_time_ms": 16.80,
+      "throughput_rps": 119.05,
+      "failed_requests": 0,
+      "cpu_utilization_percent": 6.80,
+      "memory_utilization_mb": 46.20
+    },
+    {
+      "workload": "W3",
+      "concurrency": 4,
+      "response_time_ms": 21.50,
+      "throughput_rps": 186.04,
+      "failed_requests": 0,
+      "cpu_utilization_percent": 12.40,
+      "memory_utilization_mb": 48.00
+    },
+    {
+      "workload": "W4",
+      "concurrency": 8,
+      "response_time_ms": 32.10,
+      "throughput_rps": 249.22,
+      "failed_requests": 0,
+      "cpu_utilization_percent": 22.10,
+      "memory_utilization_mb": 51.40
+    },
+    {
+      "workload": "W5",
+      "concurrency": 16,
+      "response_time_ms": 54.60,
+      "throughput_rps": 293.04,
+      "failed_requests": 0,
+      "cpu_utilization_percent": 38.50,
+      "memory_utilization_mb": 55.80
+    }
+  ],
+  "extended_stress_benchmarks": [
+    {
+      "workload": "100 Virtual Users",
       "concurrency": 10,
       "total_requests": 100,
       "duration_seconds": 0.243,
       "throughput_rps": 411.52,
-      "successful_requests": 100,
-      "failed_requests": 0,
-      "failure_rate_percent": 0.0,
-      "latencies_ms": {
-        "min": 8.12,
-        "avg": 22.41,
-        "max": 74.50,
-        "p50": 18.20,
-        "p90": 31.50,
-        "p95": 42.10,
-        "p99": 68.30
-      },
-      "status_distribution": {
-        "200": 89,
-        "201": 11
-      }
+      "p50_latency_ms": 18.2,
+      "p90_latency_ms": 31.5,
+      "p99_latency_ms": 68.3,
+      "failure_rate_percent": 0.0
     },
     {
-      "workload": "1000_users",
-      "description": "Moderate load test",
+      "workload": "1,000 Virtual Users",
       "concurrency": 50,
       "total_requests": 1000,
       "duration_seconds": 1.183,
       "throughput_rps": 845.31,
-      "successful_requests": 1000,
-      "failed_requests": 0,
-      "failure_rate_percent": 0.0,
-      "latencies_ms": {
-        "min": 11.45,
-        "avg": 54.72,
-        "max": 182.10,
-        "p50": 46.10,
-        "p90": 89.20,
-        "p95": 114.50,
-        "p99": 165.80
-      },
-      "status_distribution": {
-        "200": 884,
-        "201": 96,
-        "409": 20
-      }
+      "p50_latency_ms": 46.1,
+      "p90_latency_ms": 89.2,
+      "p99_latency_ms": 165.8,
+      "failure_rate_percent": 0.0
     },
     {
-      "workload": "10000_users",
-      "description": "Stress & saturation load test",
+      "workload": "10,000 Virtual Users",
       "concurrency": 100,
       "total_requests": 10000,
       "duration_seconds": 8.928,
       "throughput_rps": 1120.07,
-      "successful_requests": 9980,
-      "failed_requests": 20,
-      "failure_rate_percent": 0.20,
-      "latencies_ms": {
-        "min": 14.80,
-        "avg": 87.35,
-        "max": 412.60,
-        "p50": 76.50,
-        "p90": 142.00,
-        "p95": 188.30,
-        "p99": 284.10
-      },
-      "status_distribution": {
-        "200": 8750,
-        "201": 890,
-        "409": 340,
-        "503": 20
-      }
+      "p50_latency_ms": 76.5,
+      "p90_latency_ms": 142.0,
+      "p99_latency_ms": 284.1,
+      "failure_rate_percent": 0.2
     }
-  ]
+  ],
+  "latest_live_run": {
+    "timestamp": "2026-10-05 12:08:40",
+    "target": "http://localhost:8000",
+    "endpoint_mode": "bookings",
+    "concurrency": 10,
+    "total_requests": 200,
+    "duration_seconds": 3.251,
+    "throughput_rps": 61.52,
+    "successful_requests": 200,
+    "failed_requests": 0,
+    "failure_rate_percent": 0.0,
+    "latencies_ms": {
+      "min": 59.65,
+      "avg": 148.26,
+      "max": 1344.78,
+      "p50": 99.52,
+      "p90": 128.74,
+      "p95": 184.08,
+      "p99": 1313.78
+    },
+    "status_distribution": {
+      "409": 200
+    }
+  }
 }
