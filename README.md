@@ -333,3 +333,39 @@ python generate_graphs.py
 | **Manasa** | Event Service, User Service, Initial Base Architecture |
 | **Renuka** | Seat Service, Payment Service, Booking Service Orchestration |
 | **Aditya** | **API Gateway (Port 8000)**, **Docker Compose Multi-Container Orchestration**, **Load Testing Suite (Locust & Custom Load Generator)**, **Performance Benchmarking (100, 1K, 10K Workloads)**, **Visualization Dashboard & Benchmark Report** |
+
+---
+
+## Complete Folder Structure
+
+```text
+movie-concert-microservices/
+│
+├── api-gateway/                    # API Gateway service
+├── architecture/                   # Architecture diagrams & design notes
+├── docs/                           # API documentation & deployment guides
+├── load-testing/                   # Load testing scripts (Locust & custom)
+├── results/                        # Benchmarking & evaluation data
+│   ├── screenshots/                # Live docker stats evidence (w1 to w5)
+│   ├── benchmark_summary.json      # Raw JSON load test metrics
+│   ├── benchmark_report.md         # Final academic evaluation report
+│   ├── dashboard.html              # Interactive HTML performance dashboard
+│   ├── generate_graphs.py          # Script: Generates RPS & Latency graphs
+│   ├── generate_hardware_graphs.py # Script: Generates CPU & Memory graphs
+│   ├── throughput_comparison.png   # Generated graph: Requests Per Second
+│   ├── latency_percentiles.png     # Generated graph: Response Time Latencies
+│   ├── cpu_utilization.png         # Generated graph: Hardware CPU usage
+│   └── memory_utilization.png      # Generated graph: Hardware Memory usage
+│
+├── services/                       # Microservices source code
+│   ├── booking-service/
+│   ├── event-service/
+│   ├── payment-service/
+│   ├── seat-service/
+│   └── user-service/
+│
+├── docker-compose.yml              # Complete 6-service Docker orchestration
+├── .env                            # Environment variables (Docker Hub Username)
+├── .gitignore                      # Git ignored files
+└── README.md                       # Project documentation (You are here)
+```
