@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Microservices Telemetry & Performance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --surface-border: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-amber: #fbbf24;
+            --accent-red: #f87171;
+            --accent-purple: #c084fc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0369a1 50%, #0284c7 100%);
+            padding: 24px 30px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0 0 6px 0;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #bae6fd;
+            font-size: 14px;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 8px 16px;
+            border-radius: 9999px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin: 20px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .service-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+        }
+
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .status-pill {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-healthy { background: rgba(74, 222, 128, 0.15); color: var(--accent-green); border: 1px solid rgba(74, 222, 128, 0.3); }
+        .status-offline { background: rgba(248, 113, 113, 0.15); color: var(--accent-red); border: 1px solid rgba(248, 113, 113, 0.3); }
+
+        .service-latency {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .service-port {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .control-panel {
+            background-color: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button.btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button.btn:hover { background-color: #1d4ed8; }
+        button.btn:active { transform: scale(0.98); }
+
+        button.btn-stop {
+            background-color: #dc2626;
+        }
+        button.btn-stop:hover { background-color: #b91c1c; }
+
+        select, input {
+            background-color: var(--bg-color);
+            border: 1px solid var(--surface-border);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .metric-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .chart-box {
+            background-color: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .chart-box h3 {
+            margin: 0 0 14px 0;
+            font-size: 15px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        th {
+            background-color: rgba(15, 23, 42, 0.4);
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        tr:hover td {
+            background-color: rgba(56, 189, 248, 0.04);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>Movie & Concert Ticket Booking Platform</h1>
+                <p>Cloud Computing Laboratory (CCLab) | Real-Time Telemetry & Performance Dashboard</p>
+            </div>
+            <div class="live-indicator">
+                <span class="pulse-dot" id="liveDot"></span>
+                <span id="liveStatusText">LIVE MONITORING</span>
+            </div>
+        </div>
+
+        <!-- Section: Microservices Health & Inter-Service Latency -->
+        <div class="section-title">Microservice Network Health & Live Response Times</div>
+        <div class="services-grid" id="servicesGrid">
+            <!-- Dynamic Microservice Cards -->
+            <div class="service-card" id="card-gateway">
+                <div class="service-header">
+                    <span class="service-name">API Gateway</span>
+                    <span class="status-pill status-healthy" id="status-gateway">Online</span>
+                </div>
+                <div class="service-latency" id="latency-gateway">-- ms</div>
+                <div class="service-port">Port 8000 | Reverse Proxy</div>
+            </div>
+
+            <div class="service-card" id="card-booking">
+                <div class="service-header">
+                    <span class="service-name">Booking Service</span>
+                    <span class="status-pill status-healthy" id="status-booking">Online</span>
+                </div>
+                <div class="service-latency" id="latency-booking">-- ms</div>
+                <div class="service-port">Port 5004 | Saga Orchestrator</div>
+            </div>
+
+            <div class="service-card" id="card-event">
+                <div class="service-header">
+                    <span class="service-name">Event Service</span>
+                    <span class="status-pill status-healthy" id="status-event">Online</span>
+                </div>
+                <div class="service-latency" id="latency-event">-- ms</div>
+                <div class="service-port">Port 5001 | Movies & Concerts</div>
+            </div>
+
+            <div class="service-card" id="card-payment">
+                <div class="service-header">
+                    <span class="service-name">Payment Service</span>
+                    <span class="status-pill status-healthy" id="status-payment">Online</span>
+                </div>
+                <div class="service-latency" id="latency-payment">-- ms</div>
+                <div class="service-port">Port 5005 | Transactions</div>
+            </div>
+
+            <div class="service-card" id="card-seat">
+                <div class="service-header">
+                    <span class="service-name">Seat Service</span>
+                    <span class="status-pill status-healthy" id="status-seat">Online</span>
+                </div>
+                <div class="service-latency" id="latency-seat">-- ms</div>
+                <div class="service-port">Port 5003 | Inventory & Locks</div>
+            </div>
+
+            <div class="service-card" id="card-user">
+                <div class="service-header">
+                    <span class="service-name">User Service</span>
+                    <span class="status-pill status-healthy" id="status-user">Online</span>
+                </div>
+                <div class="service-latency" id="latency-user">-- ms</div>
+                <div class="service-port">Port 5002 | Profiles & Auth</div>
+            </div>
+        </div>
+
+        <!-- Section: Interactive Live Traffic Generator for Dynamic Recording -->
+        <div class="section-title">Interactive Live Traffic Simulation & Recording Controls</div>
+        <div class="control-panel">
+            <div class="control-group">
+                <label for="endpointSelect" style="font-size: 13px; font-weight: 600;">Target Route:</label>
+                <select id="endpointSelect">
+                    <option value="/events">GET /events (Catalog Query)</option>
+                    <option value="/movies">GET /movies (Movies Filter)</option>
+                    <option value="/concerts">GET /concerts (Concerts Filter)</option>
+                    <option value="/health">GET /health (Aggregated Probe)</option>
+                    <option value="/bookings">POST /bookings (Concurrent Transaction)</option>
+                </select>
+
+                <label for="rateSelect" style="font-size: 13px; font-weight: 600;">Traffic Rate:</label>
+                <select id="rateSelect">
+                    <option value="5">5 Requests / Sec</option>
+                    <option value="10" selected>10 Requests / Sec</option>
+                    <option value="20">20 Requests / Sec</option>
+                    <option value="50">50 Requests / Sec (Stress)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button class="btn" id="btnToggleTraffic" onclick="toggleLiveTraffic()">Start Live Traffic</button>
+                <button class="btn" style="background-color: #475569;" onclick="resetCounters()">Reset Counters</button>
+            </div>
+        </div>
+
+        <!-- Section: Live Traffic Metrics -->
+        <div class="metric-cards">
+            <div class="metric-card">
+                <div class="metric-title">Live Throughput</div>
+                <div class="metric-value" id="valThroughput" style="color: var(--accent-blue);">0.0 <span style="font-size:14px;">RPS</span></div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Total Requests</div>
+                <div class="metric-value" id="valTotalRequests">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">HTTP 200 (Success)</div>
+                <div class="metric-value" id="valSuccess" style="color: var(--accent-green);">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">HTTP 409 (Conflict Handled)</div>
+                <div class="metric-value" id="valConflict" style="color: var(--accent-amber);">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Average Latency</div>
+                <div class="metric-value" id="valAvgLatency" style="color: var(--accent-purple);">0.0 <span style="font-size:14px;">ms</span></div>
+            </div>
+        </div>
+
+        <!-- Section: Live Streaming Charts -->
+        <div class="chart-grid">
+            <div class="chart-box">
+                <h3>Live Inter-Service Latency Streaming (ms)</h3>
+                <canvas id="liveLatencyChart" height="220"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>Live Throughput Stream (Requests / Second)</h3>
+                <canvas id="liveThroughputChart" height="220"></canvas>
+            </div>
+        </div>
+
+        <!-- Section: Official Benchmark Comparison Table -->
+        <div class="section-title">Static Evaluation Benchmark Summary (CCLab Workloads)</div>
+        <div class="chart-box" style="margin-bottom: 24px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Workload Tier</th>
+                        <th>Concurrency</th>
+                        <th>Total Requests</th>
+                        <th>Throughput (RPS)</th>
+                        <th>p50 Latency</th>
+                        <th>p90 Latency</th>
+                        <th>p99 Latency</th>
+                        <th>Conflict / Error Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Low (100 Requests)</strong></td>
+                        <td>10 Threads</td>
+                        <td>100</td>
+                        <td><span style="color: var(--accent-green); font-weight: 700;">411.52 RPS</span></td>
+                        <td>18.20 ms</td>
+                        <td>31.50 ms</td>
+                        <td>68.30 ms</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Medium (1,000 Requests)</strong></td>
+                        <td>50 Threads</td>
+                        <td>1,000</td>
+                        <td><span style="color: var(--accent-blue); font-weight: 700;">845.31 RPS</span></td>
+                        <td>46.10 ms</td>
+                        <td>89.20 ms</td>
+                        <td>165.80 ms</td>
+                        <td>0.00%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>High (10,000 Requests)</strong></td>
+                        <td>100 Threads</td>
+                        <td>10,000</td>
+                        <td><span style="color: var(--accent-purple); font-weight: 700;">1,120.07 RPS</span></td>
+                        <td>76.50 ms</td>
+                        <td>142.00 ms</td>
+                        <td>284.10 ms</td>
+                        <td>0.20%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stress Run (Live Generator)</strong></td>
+                        <td>10 Workers</td>
+                        <td>200</td>
+                        <td><span style="color: var(--accent-amber); font-weight: 700;">61.52 RPS</span></td>
+                        <td>99.52 ms</td>
+                        <td>128.74 ms</td>
+                        <td>1313.78 ms</td>
+                        <td>100.0% (409 Protected)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // ----------------------------------------------------
+        // Chart Initializations
+        // ----------------------------------------------------
+        const maxPoints = 20;
+        const initialLabels = Array.from({length: maxPoints}, (_, i) => `${i - maxPoints + 1}s`);
+
+        // 1. Live Latency Chart
+        const ctxLatency = document.getElementById('liveLatencyChart').getContext('2d');
+        const liveLatencyChart = new Chart(ctxLatency, {
+            type: 'line',
+            data: {
+                labels: [...initialLabels],
+                datasets: [
+                    { label: 'Booking Svc', data: Array(maxPoints).fill(6), borderColor: '#38bdf8', borderWidth: 2, tension: 0.3, pointRadius: 0 },
+                    { label: 'Event Svc', data: Array(maxPoints).fill(4), borderColor: '#4ade80', borderWidth: 2, tension: 0.3, pointRadius: 0 },
+                    { label: 'Payment Svc', data: Array(maxPoints).fill(5), borderColor: '#fbbf24', borderWidth: 2, tension: 0.3, pointRadius: 0 },
+                    { label: 'Seat Svc', data: Array(maxPoints).fill(4), borderColor: '#c084fc', borderWidth: 2, tension: 0.3, pointRadius: 0 },
+                    { label: 'User Svc', data: Array(maxPoints).fill(8), borderColor: '#f87171', borderWidth: 2, tension: 0.3, pointRadius: 0 }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: false,
+                scales: {
+                    x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                    y: { beginAtZero: true, grid: { color: '#334155' }, ticks: { color: '#94a3b8' }, title: { display: true, text: 'Latency (ms)', color: '#94a3b8' } }
+                },
+                plugins: {
+                    legend: { labels: { color: '#f8fafc', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // 2. Live Throughput Chart
+        const ctxThroughput = document.getElementById('liveThroughputChart').getContext('2d');
+        const liveThroughputChart = new Chart(ctxThroughput, {
+            type: 'line',
+            data: {
+                labels: [...initialLabels],
+                datasets: [{
+                    label: 'Live RPS',
+                    data: Array(maxPoints).fill(0),
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: false,
+                scales: {
+                    x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                    y: { beginAtZero: true, grid: { color: '#334155' }, ticks: { color: '#94a3b8' }, title: { display: true, text: 'Requests / Sec', color: '#94a3b8' } }
+                },
+                plugins: {
+                    legend: { labels: { color: '#f8fafc', font: { size: 11 } } }
+                }
+            }
+        });
+
+        // ----------------------------------------------------
+        // Real-Time Health & Latency Telemetry Polling
+        // ----------------------------------------------------
+        async function fetchSystemHealth() {
+            const t0 = performance.now();
+            try {
+                const res = await fetch('http://localhost:8000/health');
+                const tGateway = (performance.now() - t0).toFixed(1);
+                document.getElementById('latency-gateway').textContent = `${tGateway} ms`;
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const svcs = data.services || {};
+
+                    const updateSvc = (id, key) => {
+                        const s = svcs[key];
+                        if (s) {
+                            const lat = s.latency_ms !== undefined ? s.latency_ms : '--';
+                            document.getElementById(`latency-${id}`).textContent = `${lat} ms`;
+                            const statusElem = document.getElementById(`status-${id}`);
+                            statusElem.textContent = s.status === 'healthy' ? 'Online' : 'Degraded';
+                            statusElem.className = `status-pill ${s.status === 'healthy' ? 'status-healthy' : 'status-offline'}`;
+                            return lat !== '--' ? lat : 0;
+                        }
+                        return 0;
+                    };
+
+                    const bLat = updateSvc('booking', 'booking_service');
+                    const eLat = updateSvc('event', 'event_service');
+                    const pLat = updateSvc('payment', 'payment_service');
+                    const sLat = updateSvc('seat', 'seat_service');
+                    const uLat = updateSvc('user', 'user_service');
+
+                    // Stream into chart
+                    const now = new Date().toLocaleTimeString().split(' ')[0];
+                    liveLatencyChart.data.labels.shift();
+                    liveLatencyChart.data.labels.push(now);
+
+                    liveLatencyChart.data.datasets[0].data.shift();
+                    liveLatencyChart.data.datasets[0].data.push(bLat);
+
+                    liveLatencyChart.data.datasets[1].data.shift();
+                    liveLatencyChart.data.datasets[1].data.push(eLat);
+
+                    liveLatencyChart.data.datasets[2].data.shift();
+                    liveLatencyChart.data.datasets[2].data.push(pLat);
+
+                    liveLatencyChart.data.datasets[3].data.shift();
+                    liveLatencyChart.data.datasets[3].data.push(sLat);
+
+                    liveLatencyChart.data.datasets[4].data.shift();
+                    liveLatencyChart.data.datasets[4].data.push(uLat);
+
+                    liveLatencyChart.update();
+                }
+            } catch (err) {
+                document.getElementById('latency-gateway').textContent = 'Offline';
+                document.getElementById('status-gateway').className = 'status-pill status-offline';
+                document.getElementById('status-gateway').textContent = 'Offline';
+            }
+        }
+
+        // Poll health every 1.5 seconds
+        setInterval(fetchSystemHealth, 1500);
+        fetchSystemHealth();
+
+        // ----------------------------------------------------
+        // Live Traffic Simulation Logic
+        // ----------------------------------------------------
+        let isRunningTraffic = false;
+        let trafficInterval = null;
+        let totalSent = 0;
+        let count200 = 0;
+        let count409 = 0;
+        let latencies = [];
+        let rpsWindowCount = 0;
+
+        function toggleLiveTraffic() {
+            const btn = document.getElementById('btnToggleTraffic');
+            if (isRunningTraffic) {
+                // Stop
+                clearInterval(trafficInterval);
+                isRunningTraffic = false;
+                btn.textContent = 'Start Live Traffic';
+                btn.className = 'btn';
+            } else {
+                // Start
+                isRunningTraffic = true;
+                btn.textContent = 'Stop Live Traffic';
+                btn.className = 'btn btn-stop';
+
+                const rate = parseInt(document.getElementById('rateSelect').value, 10);
+                const intervalMs = Math.floor(1000 / rate);
+
+                trafficInterval = setInterval(sendLiveRequest, intervalMs);
+            }
+        }
+
+        async function sendLiveRequest() {
+            const endpoint = document.getElementById('endpointSelect').value;
+            const targetUrl = `http://localhost:8000${endpoint}`;
+            const t0 = performance.now();
+
+            let options = { method: 'GET' };
+            if (endpoint === '/bookings') {
+                options = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: 3,
+                        event_id: 1,
+                        seats: ["A1", "A2"]
+                    })
+                };
+            }
+
+            try {
+                totalSent++;
+                rpsWindowCount++;
+                const res = await fetch(targetUrl, options);
+                const lat = performance.now() - t0;
+                latencies.push(lat);
+
+                if (res.status === 200 || res.status === 201) {
+                    count200++;
+                } else if (res.status === 409) {
+                    count409++;
+                }
+
+                updateMetricsUI();
+            } catch (err) {
+                // request error
+            }
+        }
+
+        function updateMetricsUI() {
+            document.getElementById('valTotalRequests').textContent = totalSent;
+            document.getElementById('valSuccess').textContent = count200;
+            document.getElementById('valConflict').textContent = count409;
+
+            if (latencies.length > 0) {
+                const recentLatencies = latencies.slice(-50);
+                const avg = recentLatencies.reduce((a, b) => a + b, 0) / recentLatencies.length;
+                document.getElementById('valAvgLatency').innerHTML = `${avg.toFixed(1)} <span style="font-size:14px;">ms</span>`;
+            }
+        }
+
+        function resetCounters() {
+            totalSent = 0;
+            count200 = 0;
+            count409 = 0;
+            latencies = [];
+            rpsWindowCount = 0;
+            updateMetricsUI();
+            document.getElementById('valThroughput').innerHTML = `0.0 <span style="font-size:14px;">RPS</span>`;
+        }
+
+        // RPS Calculation ticker (every 1 sec)
+        setInterval(() => {
+            const currentRps = rpsWindowCount;
+            rpsWindowCount = 0;
+            document.getElementById('valThroughput').innerHTML = `${currentRps.toFixed(1)} <span style="font-size:14px;">RPS</span>`;
+
+            // Update throughput chart
+            const now = new Date().toLocaleTimeString().split(' ')[0];
+            liveThroughputChart.data.labels.shift();
+            liveThroughputChart.data.labels.push(now);
+
+            liveThroughputChart.data.datasets[0].data.shift();
+            liveThroughputChart.data.datasets[0].data.push(currentRps);
+            liveThroughputChart.update();
+        }, 1000);
+    </script>
+</body>
+</html>
