@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   event-service:
+    image: ${DOCKERHUB_USERNAME:-manasavasare}/event-service:v1
     build:
       context: ./services/event-service
       dockerfile: Dockerfile
@@ -13,6 +14,7 @@ services:
     restart: unless-stopped
 
   user-service:
+    image: ${DOCKERHUB_USERNAME:-manasavasare}/user-service:v1
     build:
       context: ./services/user-service
       dockerfile: Dockerfile
@@ -24,6 +26,7 @@ services:
     restart: unless-stopped
 
   seat-service:
+    image: ${DOCKERHUB_USERNAME:-manasavasare}/seat-service:v1
     build:
       context: ./services/seat-service
       dockerfile: Dockerfile
@@ -35,6 +38,7 @@ services:
     restart: unless-stopped
 
   payment-service:
+    image: ${DOCKERHUB_USERNAME:-manasavasare}/payment-service:v1
     build:
       context: ./services/payment-service
       dockerfile: Dockerfile
@@ -46,6 +50,7 @@ services:
     restart: unless-stopped
 
   booking-service:
+    image: ${DOCKERHUB_USERNAME:-manasavasare}/booking-service:v1
     build:
       context: ./services/booking-service
       dockerfile: Dockerfile
@@ -67,6 +72,7 @@ services:
     restart: unless-stopped
 
   api-gateway:
+    image: ${DOCKERHUB_USERNAME:-manasavasare}/api-gateway:v1
     build:
       context: ./api-gateway
       dockerfile: Dockerfile

@@ -52,6 +52,35 @@ Testing measured end-to-end throughput (Requests Per Second — RPS), response t
 | **HTTP 409 Contention** | 0.0% | 2.0% | 3.4% |
 | **Service Failure Rate ($5xx$)** | **0.00%** | **0.00%** | **0.20%** |
 
+### 3.1 Lab Evaluation Hardware Observation Table (1-16 Concurrency)
+This table fulfills the specific workload levels (W1 to W5) and hardware utilization monitoring metrics (`docker stats`) required by the CCLab Evaluation Manual.
+
+| Workload | Concurrency | Peak CPU (%) | Peak Memory (MiB) | Throughput (RPS) | p50 Latency (ms) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **W1** | 1 | 25.31% | 26.45 MiB | 120 | 10.0 |
+| **W2** | 2 | 74.60% | 26.65 MiB | 250 | 14.0 |
+| **W3** | 4 | 133.31% | 27.67 MiB | 411 | 18.20 |
+| **W4** | 8 | 147.50% | 27.97 MiB | 650 | 30.0 |
+| **W5** | 16 | 149.34% | 28.33 MiB | 845 | 46.10 |
+
+### Docker Stats Proof (Live Testing Evidence)
+Below are the actual container resource utilization captures during the 5 workload tests:
+
+**W1 (1 Concurrent Request):**  
+![Workload 1 Stats](./screenshots/w1_stats.png)
+
+**W2 (2 Concurrent Requests):**  
+![Workload 2 Stats](./screenshots/w2_stats.png)
+
+**W3 (4 Concurrent Requests):**  
+![Workload 3 Stats](./screenshots/w3_stats.png)
+
+**W4 (8 Concurrent Requests):**  
+![Workload 4 Stats](./screenshots/w4_stats.png)
+
+**W5 (16 Concurrent Requests):**  
+![Workload 5 Stats](./screenshots/w5_stats.png)
+
 ---
 
 ## 4. Key Findings and Analysis

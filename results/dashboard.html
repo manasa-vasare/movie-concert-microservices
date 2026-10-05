@@ -29,7 +29,7 @@
         .header p { margin: 0; opacity: 0.9; }
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 24px;
             margin-bottom: 30px;
         }
@@ -86,7 +86,7 @@
                 <canvas id="throughputChart"></canvas>
             </div>
             <div class="card">
-                <h2>Response Time Percentiles (Latency in ms)</h2>
+                <h2>Latency Percentiles (p50, p90, p95, p99) ms</h2>
                 <canvas id="latencyChart"></canvas>
             </div>
         </div>
@@ -108,7 +108,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>100 Users (Baseline)</strong></td>
+                        <td><strong>100 Users</strong></td>
                         <td>10 threads</td>
                         <td>100</td>
                         <td><span class="badge badge-info">411.52 RPS</span></td>
@@ -118,7 +118,7 @@
                         <td><span class="badge badge-success">0.0%</span></td>
                     </tr>
                     <tr>
-                        <td><strong>1,000 Users (Moderate)</strong></td>
+                        <td><strong>1000 Users</strong></td>
                         <td>50 threads</td>
                         <td>1,000</td>
                         <td><span class="badge badge-info">845.31 RPS</span></td>
@@ -128,10 +128,10 @@
                         <td><span class="badge badge-success">0.0%</span></td>
                     </tr>
                     <tr>
-                        <td><strong>10,000 Users (Stress)</strong></td>
+                        <td><strong>10000 Users</strong></td>
                         <td>100 threads</td>
                         <td>10,000</td>
-                        <td><span class="badge badge-info">1,120.07 RPS</span></td>
+                        <td><span class="badge badge-info">1120.07 RPS</span></td>
                         <td>76.5 ms</td>
                         <td>142.0 ms</td>
                         <td>284.1 ms</td>
@@ -144,10 +144,10 @@
 
     <script>
         const ctxThroughput = document.getElementById('throughputChart').getContext('2d');
-        new Chart(ctxThroughput, {{
+        new Chart(ctxThroughput, {
             type: 'bar',
             data: {
-                labels: ["100 Users", "1,000 Users", "10,000 Users"],
+                labels: ["100 Users", "1000 Users", "10000 Users"],
                 datasets: [{
                     label: 'Requests Per Second (RPS)',
                     data: [411.52, 845.31, 1120.07],
@@ -158,27 +158,27 @@
             options: {
                 responsive: true,
                 scales: {
-                    y: { beginAtZero: true, title: { display: true, text: 'RPS (Requests Per Second)' } }
+                    y: { beginAtZero: true, title: { display: true, text: 'RPS' } }
                 }
             }
-        }});
+        });
 
         const ctxLatency = document.getElementById('latencyChart').getContext('2d');
         new Chart(ctxLatency, {
             type: 'line',
             data: {
-                labels: ["100 Users", "1,000 Users", "10,000 Users"],
+                labels: ["100 Users", "1000 Users", "10000 Users"],
                 datasets: [
-                    { label: 'p50 (Median)', data: [18.2, 46.1, 76.5], borderColor: '#10b981', backgroundColor: '#10b981', fill: false, tension: 0.1, borderWidth: 2 },
-                    { label: 'p90', data: [31.5, 89.2, 142.0], borderColor: '#3b82f6', backgroundColor: '#3b82f6', fill: false, tension: 0.1, borderWidth: 2 },
-                    { label: 'p95', data: [42.1, 114.5, 188.3], borderColor: '#f59e0b', backgroundColor: '#f59e0b', fill: false, tension: 0.1, borderWidth: 2 },
-                    { label: 'p99', data: [68.3, 165.8, 284.1], borderColor: '#ef4444', backgroundColor: '#ef4444', fill: false, tension: 0.1, borderWidth: 2 }
+                    { label: 'p50 (Median)', data: [18.2, 46.1, 76.5], borderColor: '#10b981', fill: false, tension: 0.1 },
+                    { label: 'p90', data: [31.5, 89.2, 142.0], borderColor: '#3b82f6', fill: false, tension: 0.1 },
+                    { label: 'p95', data: [42.1, 114.5, 188.3], borderColor: '#f59e0b', fill: false, tension: 0.1 },
+                    { label: 'p99', data: [68.3, 165.8, 284.1], borderColor: '#ef4444', fill: false, tension: 0.1 }
                 ]
             },
             options: {
                 responsive: true,
                 scales: {
-                    y: { beginAtZero: true, title: { display: true, text: 'Latency (Milliseconds)' } }
+                    y: { beginAtZero: true, title: { display: true, text: 'Milliseconds' } }
                 }
             }
         });
