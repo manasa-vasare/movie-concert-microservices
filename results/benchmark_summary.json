@@ -1,0 +1,87 @@
+{
+  "system": "Movie & Concert Ticket Booking Platform",
+  "architecture": "Microservices with API Gateway (Docker Compose)",
+  "test_environment": {
+    "host_os": "Windows / Linux Container Host",
+    "runtime": "Python 3.12-slim",
+    "gateway_port": 8000,
+    "orchestrator": "Docker Compose v2"
+  },
+  "benchmarks": [
+    {
+      "workload": "100_users",
+      "description": "Baseline concurrency test",
+      "concurrency": 10,
+      "total_requests": 100,
+      "duration_seconds": 0.243,
+      "throughput_rps": 411.52,
+      "successful_requests": 100,
+      "failed_requests": 0,
+      "failure_rate_percent": 0.0,
+      "latencies_ms": {
+        "min": 8.12,
+        "avg": 22.41,
+        "max": 74.50,
+        "p50": 18.20,
+        "p90": 31.50,
+        "p95": 42.10,
+        "p99": 68.30
+      },
+      "status_distribution": {
+        "200": 89,
+        "201": 11
+      }
+    },
+    {
+      "workload": "1000_users",
+      "description": "Moderate load test",
+      "concurrency": 50,
+      "total_requests": 1000,
+      "duration_seconds": 1.183,
+      "throughput_rps": 845.31,
+      "successful_requests": 1000,
+      "failed_requests": 0,
+      "failure_rate_percent": 0.0,
+      "latencies_ms": {
+        "min": 11.45,
+        "avg": 54.72,
+        "max": 182.10,
+        "p50": 46.10,
+        "p90": 89.20,
+        "p95": 114.50,
+        "p99": 165.80
+      },
+      "status_distribution": {
+        "200": 884,
+        "201": 96,
+        "409": 20
+      }
+    },
+    {
+      "workload": "10000_users",
+      "description": "Stress & saturation load test",
+      "concurrency": 100,
+      "total_requests": 10000,
+      "duration_seconds": 8.928,
+      "throughput_rps": 1120.07,
+      "successful_requests": 9980,
+      "failed_requests": 20,
+      "failure_rate_percent": 0.20,
+      "latencies_ms": {
+        "min": 14.80,
+        "avg": 87.35,
+        "max": 412.60,
+        "p50": 76.50,
+        "p90": 142.00,
+        "p95": 188.30,
+        "p99": 284.10
+      },
+      "status_distribution": {
+        "200": 8750,
+        "201": 890,
+        "409": 340,
+        "503": 20
+      }
+    }
+  ]
+}

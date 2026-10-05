@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  event-service:
+    build:
+      context: ./services/event-service
+      dockerfile: Dockerfile
+    container_name: event-service-container
+    ports:
+      - "5001:5000"
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    container_name: user-service-container
+    ports:
+      - "5002:5000"
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  seat-service:
+    build:
+      context: ./services/seat-service
+      dockerfile: Dockerfile
+    container_name: seat-service-container
+    ports:
+      - "5003:5000"
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: ./services/payment-service
+      dockerfile: Dockerfile
+    container_name: payment-service-container
+    ports:
+      - "5005:5000"
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  booking-service:
+    build:
+      context: ./services/booking-service
+      dockerfile: Dockerfile
+    container_name: booking-service-container
+    ports:
+      - "5004:5000"
+    environment:
+      - USER_SERVICE_URL=http://user-service-container:5000
+      - EVENT_SERVICE_URL=http://event-service-container:5000
+      - SEAT_SERVICE_URL=http://seat-service-container:5000
+      - PAYMENT_SERVICE_URL=http://payment-service-container:5000
+    depends_on:
+      - event-service
+      - user-service
+      - seat-service
+      - payment-service
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway-container
+    ports:
+      - "8000:8000"
+    environment:
+      - EVENT_SERVICE_URL=http://event-service-container:5000
+      - USER_SERVICE_URL=http://user-service-container:5000
+      - SEAT_SERVICE_URL=http://seat-service-container:5000
+      - BOOKING_SERVICE_URL=http://booking-service-container:5000
+      - PAYMENT_SERVICE_URL=http://payment-service-container:5000
+    depends_on:
+      - event-service
+      - user-service
+      - seat-service
+      - booking-service
+      - payment-service
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+networks:
+  microservices-network:
+    name: microservices-network
+    driver: bridge
