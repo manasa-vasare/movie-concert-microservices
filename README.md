@@ -330,7 +330,7 @@ python generate_graphs.py
 
 | Team Member | Components Implemented |
 | :--- | :--- |
-| **Manasa** | Event Service, User Service, Initial Base Architecture |
+| **Manasa** | Event Service, User Service, Initial Base Architecture, Live Hardware Benchmarking, Data Visualization (CPU/Memory Graphs), Final Benchmark Report Compilation |
 | **Renuka** | Seat Service, Payment Service, Booking Service Orchestration |
 | **Aditya** | **API Gateway (Port 8000)**, **Docker Compose Multi-Container Orchestration**, **Load Testing Suite (Locust & Custom Load Generator)**, **Performance Benchmarking (100, 1K, 10K Workloads)**, **Visualization Dashboard & Benchmark Report** |
 
